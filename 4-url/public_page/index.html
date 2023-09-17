@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style type="text/css" media="all">
+     html {
+      height: 100vh;
+     }
+     
+     body {
+      margin: 0;
+      padding: 0;
+     }
+     
+     .m_header__title {
+      border-left: 4px solid #3b3b3b;
+      color: #000;
+      font-size: 1.2em;
+      display: flex;
+      align-items: center;
+      height: 1.4em;
+      margin-left: 4px;
+      padding-left: 0.2em;
+      text-align: left;
+     }
+     
+     .m_content {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+     }
+     
+     .welcome_text {
+      color: #00064d;
+      font-size: 1.8em;
+      font-family: Serif;
+      text-transform: uppercase;
+     }
+     
+     .welcome_text_exclamation {
+      color: #f4ff3c;
+      text-shadow: 1px 1px 0 #00064d;
+     }
+     
+     .m_footer {
+      background-color: #414141;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 200px;
+      position: absolute;
+      bottom: 0;
+      width: 100vw;
+     }
+     
+     .m_footer__link {
+      color: #fff;
+      display: flex;
+      align-items: center;
+      font-size: 0.9em;
+      font-family: Serif;
+      height: 1.1em;
+      text-decoration: none;
+      transition-property: background-color, border-radius, font-size, color;
+      transition-duration: 0.25s;
+      width: fit-content;
+     }
+     
+     .m_footer__link:hover {
+      background-color: #fff;
+      border-radius: 5px;
+      color: #3b3b3b;
+      font-size: 1em;
+     }
+    </style>
+    <title>nodejs url</title>
+  </head>
+  <body>
+   <header>
+    <h1 class="m_header__title">learning nodejs</h1>
+   </header>
+   <main class="m_content">
+    <p class="welcome_text">wellcome<span class="welcome_text_exclamation">!!!</span></p>
+   </main>
+   <footer class="m_footer">
+    <a href="http://localhost:8080/about.html" class="m_footer__link">who am I?</a>
+   </footer>
+  </body>
+</html>

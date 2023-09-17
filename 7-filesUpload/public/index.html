@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <style type="text/css" media="all">
+      html {
+        height: 100vh;
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        height: 99%;
+      }
+
+      .form_container {
+        background-color: #ededed;
+        height: 100%;
+        margin: 0 auto;
+      }
+      
+            
+      .file_preview_container {
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       overflow: auto;
+       margin: 1% auto 1% auto;
+       max-height: 400px;
+       max-width: 90vw;
+      }
+      
+      .preview_image {
+       background-color: #d4d4d4;
+       border: 3px solid #3b3b3b;
+       border-radius: 3px;
+      }
+      
+      .preview_video {
+        height: 200px;
+        width: 400px;
+      }
+      
+      .preview_text {
+       font-size: 0.9em;
+       text-align: center;
+      }
+
+      .submission_form {
+       background-color: #fff;
+       border-radius: 10px;
+       display: flex;
+       align-items: center;
+       flex-direction: column;
+       justify-content: space-around;
+       height: 300px;
+       margin: 1% auto 2% auto;
+       width: 300px;
+      }
+      
+      .input_file__label {
+       background-color: #1a8cff;
+       border-radius: 5px;
+       color: #fff;
+       cursor: pointer;
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       font-size: 1.2em;
+       font-weight: 500;
+       height: 32px;
+       text-align: center;
+       padding: 10px;
+       width: 200px;
+      } 
+
+      .input_file {
+       display: none;
+      }
+
+      .submission_form__button_submit {
+       background-color: #1aff97;
+       border: none;
+       border-radius: 5px;
+       box-shadow: 2px 2px 5px rgba(0,0,0,0.35);
+       color: #fff;
+       font-size: 1em;
+       font-weight: 500;
+       height: 24px;
+       transition: transform 0.25s;
+       width: 100px;
+      }
+      
+      .submission_form__button_submit:active {
+       transform: scale(0.9,0.9);
+      }
+    </style>
+
+    <title>learning nodejs</title>
+  </head>
+  <body>
+    <div class="form_container">
+      <div id="file_preview_box" class="file_preview_container"></div>
+      <form
+        action="fileupload"
+        method="post"
+        enctype="multipart/form-data"
+        class="submission_form"
+      >
+       <label for="input_file_upload" class="input_file__label">choose files</label>
+        <input
+          type="file"
+          name="file_to_upload"
+          id="input_file_upload"
+          class="input_file"
+        />
+        
+        <button type="submit" class="submission_form__button_submit">
+         send file
+        </button>
+      </form>
+    </div>
+    <script type="application/javascript" charset="utf-8">
+
+      const inputFile = document.getElementsByName('file_to_upload')[0];
+
+      inputFile.onchange = function(event) {
+       const file = event.target.files[0];
+        
+      const previewElements = ["preview_image",
+         "preview_video",
+         "preview_text"
+        ];
+      
+       for(let elementClassName of previewElements) {
+        const element = document.getElementsByClassName(elementClassName)[0];
+        
+        if(element) {
+         element.parentNode.removeChild(element); 
+        }
+       }
+      
+       showFile(file);
+      }
+
+      function showFile(file) {
+       const fileName = file.name;
+       
+       const fileSize = (function(){
+        const bytes = file.size;
+        const KB = (bytes / 1000);
+        const MB = bytes / (1000 * 1000);
+        
+        if(KB > 999) {
+         return `${MB.toFixed(2).toLocaleString('pt-BR')}mb`;
+        } else if(bytes > 999) {
+         return `${KB.toFixed(2).toLocaleString('pt-BR')}kb`;
+        } else {
+         return `${bytes}b`;
+        }
+       })();
+       
+       const fileExtension = (function(){
+        const extension_re = /^.*\.([a-z0-9]+)$/i
+        const result = extension_re.exec(file.name);
+        
+        if(result) {
+         return result[1];
+        } else {
+         throw 'file is not valid';
+        }
+       })();
+
+       const videoExtensions = [
+        'mp4'
+       ];
+
+       const imageExtensions = [
+        'png', 'jpg', 'jpge',
+        'git'
+       ];
+
+       const previewContainer = document.getElementById('file_preview_box');
+
+       if(imageExtensions.some(checkExtension)){
+        showImageFile();
+       } else if(videoExtensions.some(checkExtension)) {
+        showVideoFile();
+       } else {
+        showTextFile();
+       }
+
+       function checkExtension(extension) {
+        return extension == fileExtension;
+       }
+
+       function showImageFile() {
+        const img = document.createElement('img');
+
+        const fileReader = new FileReader();
+        
+        img.setAttribute('class', 'preview_image');
+        img.setAttribute('alt', `${fileName}`);
+
+        fileReader.addEventListener("load", function(){
+         img.src = fileReader.result;
+         
+         img.onload = function() {
+          const imageWidth = img.naturalWidth,
+          imageHeight = img.naturalHeight;
+          
+          const size = (function(){
+           let _size = 0.25;
+           
+           const width =_size * imageWidth;
+           const height = _size * imageHeight;
+           
+           if(
+            width > 350 ||
+            height > 350
+            ) {
+            
+            _size = 0.10
+           }
+           
+           return _size;
+          })();
+          
+          const WIDTH = size * imageWidth;
+          const HEIGHT = size * imageHeight;
+          
+          img.style.cssText = `width:${WIDTH}px;height:${HEIGHT}px;`;
+         };
+         
+        });
+
+        fileReader.readAsDataURL(file);
+
+        previewContainer.appendChild(img);
+       }
+
+       function showTextFile() {
+        const paragraph = document.createElement('p');
+        
+        paragraph.setAttribute('class','preview_text');
+        
+        paragraph.textContent = `${fileName} ${fileSize}`;
+
+        previewContainer.appendChild(paragraph);
+       }
+
+       function showVideoFile() {
+        const video = document.createElement('video');
+        
+        const fileReader = new FileReader();
+
+        video.setAttribute('controls','true');
+        video.setAttribute('class','preview_video');
+        
+        video.controlsList.add('nodownload');
+      
+        fileReader.addEventListener('load',function(){
+         video.src = fileReader.result;
+        });
+
+        fileReader.readAsDataURL(file);
+
+        previewContainer.appendChild(video);
+       }
+
+      }
+    </script>
+  </body>
+</html>

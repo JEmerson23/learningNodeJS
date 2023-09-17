@@ -1,0 +1,14 @@
+{
+  "name": "learning_npm",
+  "version": "0.0.1",
+  "description": "a simple project to show the uses of npm",
+  "main": "main.js",
+  "scripts": {
+    "test": "node main.js & json-server --port 4000 ./database/student_list.json"
+  },
+  "author": "JEmerson23",
+  "license": "ISC",
+  "dependencies": {
+    "json-server": "^0.17.3"
+  }
+}

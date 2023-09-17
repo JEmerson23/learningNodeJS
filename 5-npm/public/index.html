@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style type="text/css" media="all">
+     html {
+      height: 100vh;
+     }
+     
+     body {
+      margin: 0;
+      padding: 0;
+     }
+     
+     .m_header, .m_content {
+      margin: 0 auto;
+      max-width: 900px;
+     }
+    
+     .m_header {
+      box-shadow: 2px 1px 6px rgba(0,0,0,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+     }
+     
+     .m_header__title {
+      --b-color: #000000;
+      border-left: 3px solid var(--b-color);
+      border-right: 3px solid var(--b-color);
+      color: #404040;
+      font-size: 1.2em;
+      padding: 0 3px 0 3px;
+     }
+     
+     .m_content {
+ 
+     }
+     
+     .search_box {
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      flex-direction: column;
+      justify-content: center;
+      margin: 15% auto 0 auto;
+      width: 368px;
+     }
+     
+     .search_suggestion_container-off {
+      height: 0;
+     }
+     
+     .search_suggestion_container-on {
+      background-color: ;
+      height: 94px;
+      overflow-y: auto;
+      width: 200px;
+     }
+     
+     .suggestion_button {
+      background-color: #eaeaea;
+      border: none;
+      border-radius: 2px;
+      color: #8e8e8e;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      height: 28px;
+      margin: 2px auto 2px auto;
+      width: 200px;
+     }
+     
+     .search_container {
+      height: 80px;
+      padding-top: 10%;
+      width: 300px;
+     }
+     
+     .search_container__title {
+      font-family: Serif;
+      font-size: 0.9em;
+      font-weight: 300;
+      margin: 0 auto;
+      height: 1em;
+      width: 112px;
+      margin: 4px 0 4px 5%;
+     }
+     
+     .search_bar_container {
+      display: flex;
+      align-items: center;
+      flex-wrap: nowrap;
+      justify-content: center;
+      width: auto;
+     }
+     
+     .search_container__search_bar {
+      background-color: #fff;
+      border: 1px solid #000;
+      border-radius: 50px;
+      height: 28px;
+      padding-left: 3%;
+      width: 200px; 
+      z-index: 999;
+     }
+     
+     .search_container__search_button {
+      --b-style: 1px solid #3b3b3b;
+      background-color: #f4f4f4;
+      border-left: none;
+      border-top: var(--b-style) ;
+      border-right: var(--b-style);
+      border-bottom: var(--b-style);
+      border-radius: 0 32px 32px 0;
+      color: #4a4a4a;
+      font-family: Serif;
+      font-size: 0.9em;
+      height: 22px;
+      padding-left: 6px;
+      position: relative;
+      left: -6px;
+      width: 68px;
+      z-index: 998;
+     }
+     
+     .search_output_container {
+       
+     }
+     
+     .student_information_table {
+      border: 1px solid #000;
+      border-radius: 5px;
+      margin: 0 auto;
+      width: 256px;
+     }
+     
+     .student_information_table thead td{
+      border-bottom: 1px solid #3b3b3b;
+      border-left: 1px solid #3b3b3b;
+      vertical-align: center;
+     }
+     
+     .student_information_table thead td:first-child {
+      border-left: none;
+     }
+     
+     .student_information_table tbody td {
+      padding-left: 2%;
+      vertical-align: center;
+     }
+     
+    </style>
+    <title>nodejs npm</title>
+  </head>
+  <body>
+   <header class="m_header">
+    <h1 class="m_header__title">learning nodejs</h1>
+   </header>
+   <main class="m_content">
+    <div class="search_box">
+     <form id="search_form" class="search_container">
+      <label for="search_bar" class="search_container__title">search student</label>
+      <div class="search_bar_container">
+       <input type="search" id="search_bar" class="search_container__search_bar"/><button id="search_button" class="search_container__search_button">buscar</button>
+      </div>
+     </form>
+     <nav id="search_suggestion" class="search_suggestion_container-on"></nav>
+    </div>
+    <div id="search_output" class="search_output_container"></div>
+   </main>
+   <script type="application/javascript" charset="utf-8">
+    const searchForm = document.getElementById('search_form');
+    const searchBar = document.getElementById("search_bar");
+    const searchButton = document.getElementById("search_button");
+    const searchSuggestion = document.getElementById("search_suggestion");
+    const searchOutput = document.getElementById("search_output");
+    
+    const suggestionButtonClass = 'suggestion_button';
+    
+    searchBar.oninput = function(event) {
+     const input = event.target.value.trim();
+     
+     if(input.length > 0) {
+      search(input,function(_input,response){
+       showSuggestions(_input,response);
+      });
+     } else {
+      clearSuggestions(null,true);
+     }
+    };
+    
+    searchForm.onsubmit = function(event) {
+     const input = searchBar.value.trim();
+     
+     if(input.length > 0) {
+      search(input,function(_input,response){     
+       const student = getStudent(_input,JSON.parse(response));
+       
+       showStudent(student);
+      });
+     }
+     
+     event.preventDefault();
+    }
+    
+    changeSearchSuggestion();
+    
+    function search(input,onready){
+     const _input = input;
+     const request = new XMLHttpRequest();
+     
+     request.open('GET','http://localhost:4000/student');
+     
+     request.onload = function() {
+      if(onready) {
+       onready(input,request.responseText,request);
+      }
+     };
+     
+     request.send();
+    }
+    
+    function showSuggestions(input,listJSON) {
+     const list = JSON.parse(listJSON) || [];
+     
+     const suggestions = list.filter(function(student){
+      return student[0].toLowerCase().startsWith(input.toLowerCase());
+     });
+     
+     updateSuggestions();
+     
+     changeSearchSuggestion();
+     
+     function updateSuggestions() {
+      if(clearSuggestions(searchBar.value)) {
+       const suggestionButtons = Array.from(document.getElementsByClassName(suggestionButtonClass));
+       
+       suggestions.forEach(function(student,index){
+        const studentName = student[0];
+        
+        if(
+         suggestionButtons.length < 1 ||
+         suggestionButtons.every(function(button) {
+          return button.textContent != studentName;
+         })
+        ) {
+         addSuggestion(studentName,function(){
+          const _student = student;
+          showStudent(_student);
+         });
+        }
+       });
+      }
+     }
+     
+     function addSuggestion(suggestion,onclick) {
+      const button = document.createElement('button');
+      
+      button.textContent = suggestion;
+      
+      button.addEventListener('click',onclick);
+      
+      button.setAttribute('class',suggestionButtonClass);
+      
+      searchSuggestion.appendChild(button);
+     }
+    }
+    
+    function clearSuggestions(ignore,cleanEverything=false) {
+     const suggestionButtons = Array.from(document.getElementsByClassName(suggestionButtonClass));
+      
+     suggestionButtons.forEach(function(button) {
+      if(!cleanEverything && button.textContent.toLowerCase().startsWith(ignore.toLowerCase())) {
+       return;
+      }
+       
+      button.parentNode.removeChild(button);
+     });
+     
+     changeSearchSuggestion();
+      
+     return true;
+    }
+    
+    function showStudent(student){
+     if(document.getElementById("student_information")) {
+      search_output.removeChild(document.getElementById("student_information"));
+     }
+     
+     const table = document.createElement('table'),
+     thead = table.createTHead(),
+     tbody = table.createTBody();
+     
+     const theadRow = thead.insertRow(0),
+     tbodyRow = tbody.insertRow(0);
+     
+     const theadCells = ["name","age","grade"].map(
+       function(content,index){
+        const cell = theadRow.insertCell(index);
+        
+        const title = newTitle(content,cell);
+        
+        return cell;
+     });
+     
+     const tbodyCells = student.map(
+       function(content,index){
+        const cell = tbodyRow.insertCell(index);
+        
+        cell.textContent = content;
+        
+        return cell;
+       });
+       
+     table.setAttribute('id',"student_information");
+     
+     table.setAttribute('class',"student_information_table");
+     
+     searchOutput.appendChild(table);
+     
+     searchBar.value = student[0];
+     
+     clearSuggestions(null,true);
+     
+     function newTitle(content,parent) {
+      const th = document.createElement('th');
+     
+      if(content)
+       th.textContent = content;
+      
+      parent.appendChild(th);
+      
+      return th;
+     }
+    }
+    
+    function getStudent(input,list) {
+     return list.find(function(student){
+      return student[0].toLowerCase().startsWith(input.toLowerCase().trim());
+     });
+    }
+    
+    function changeSearchSuggestion() {
+     const elementClass = "search_suggestion_container-";
+     
+     let style = "off";
+     
+     if(document.getElementsByClassName(suggestionButtonClass).length > 0) {
+      style = "on";
+     }
+     
+     searchSuggestion.setAttribute('class',elementClass+style);
+    }
+   </script>
+  </body>
+</html>

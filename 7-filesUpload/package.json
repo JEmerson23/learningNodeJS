@@ -1,0 +1,14 @@
+{
+  "name": "learning_nodejs",
+  "version": "1.0.0",
+  "description": "upload de arquivos com formidable",
+  "main": "main.js",
+  "scripts": {
+    "test": "node main.js"
+  },
+  "author": "JEmerson23",
+  "license": "ISC",
+  "dependencies": {
+    "formidable": "^3.5.1"
+  }
+}
